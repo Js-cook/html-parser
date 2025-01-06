@@ -1,26 +1,26 @@
 import java.util.ArrayList;
-import java.io.File;
 import java.util.Scanner;
 import java.util.Map;
 import java.util.TreeMap;
+import components.TreeNode;
 
 public class HTMLParser {
-    private ArrayList<String> tokens;
+    // private ArrayList<String> tokens;
     private ArrayList<String> emptyString = new ArrayList(1);
 
     /**
      * Nested class to represent the HTML tags as nodes for a tree
      */
     private static class HTMLNode {
-        private boolean isClosed;
+        boolean isClosed;
         private String tag;
-        private ArrayList<HTMLNode> children;
-        private HTMLNode parent;
+        ArrayList<HTMLNode> children;
+        HTMLNode parent;
         private Map<String, String> attributes;
 
-        public HTMLNode(String tagName){
+        public HTMLNode(){
             this.isClosed = false;
-            this.tag = tagName;
+            this.tag = "";
             this.children = null;
             this.parent = null;
             this.attributes = new TreeMap<>();
@@ -28,6 +28,10 @@ public class HTMLParser {
 
         public void addChildNode(HTMLNode child){
             this.children.add(child);
+        }
+
+        public void setTagName(String name){
+            this.tag = name;
         }
 
         public void addAttribute(String k, String v){
@@ -47,7 +51,7 @@ public class HTMLParser {
      * Constructor
      */
     public HTMLParser(){
-        tokens = new ArrayList<>();
+        // tokens = new ArrayList<>();
         emptyString.add(" ");
     }
 
@@ -56,7 +60,9 @@ public class HTMLParser {
      * @param inFileReader
      *      Scanner object that corresponds to the input file
      */
-    private void tokenizer(Scanner inFileReader){
+    private ArrayList<String> tokenizer(Scanner inFileReader){
+        ArrayList<String> tokens = new ArrayList<>();
+
         while(inFileReader.hasNextLine()){
             String[] tokenizedLine = inFileReader.nextLine().split("((?<=<|>| )|(?=<|>| ))");
             for(String token : tokenizedLine){
@@ -65,7 +71,37 @@ public class HTMLParser {
         }
         tokens.removeAll(emptyString);
 
-        // System.out.println(tokens.toString());
+        return tokens;
+    }
+
+    private HTMLNode parseHelper(ArrayList<String> tokens){
+        String firstToken = tokens.removeFirst();
+        HTMLNode newNode = new HTMLNode();
+
+        if(firstToken.equals("<")){
+            String nextToken = tokens.removeFirst();
+            tokens.removeFirst(); // get rid of >
+            newNode.setTagName(nextToken);
+            // TODO: add all attributes prolly need helper fn
+            newNode.addChildNode(parseHelper(tokens));
+            newNode.closeNode();
+            // remove all three tokens from closer
+            for(int i = 0; i < 3 ; i++){
+                tokens.removeFirst();
+            }
+        } else {
+            // text node so no children
+            newNode.setTagName(firstToken);
+            newNode.closeNode();
+        }
+
+        return newNode;
+    }
+
+    public void parse(Scanner inFileReader){
+        ArrayList<String> tokenizedFile = tokenizer(inFileReader);
+        
+        // do other stuff
     }
 
     public static void main(String[] args){
