@@ -6,7 +6,7 @@ public class demo {
         HTMLParser parser = new HTMLParser();
         try{
             Scanner inFileReader = new Scanner(new File("C:\\Users\\jsc10\\Misc-Projects\\html-parser\\sample.html"));
-            parser.tokenizer(inFileReader);
+            // parser.tokenizer(inFileReader);
         } catch(Exception e){
             System.err.println(e);
         }
